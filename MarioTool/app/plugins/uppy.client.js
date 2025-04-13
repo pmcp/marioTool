@@ -5,6 +5,8 @@ import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import Transloadit from '@uppy/transloadit';
 import ImageEditor from '@uppy/image-editor';
+// import Compressor from '@uppy/compressor';
+
 
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -30,7 +32,8 @@ export default defineNuxtPlugin((nuxtApp) => {
           },
         },
       })
-    .use(ImageEditor);
+    .use(ImageEditor)
+    // .use(Compressor);
 
 
     uppy.on('transloadit:assembly-created', (assembly, fileIDs) => {});

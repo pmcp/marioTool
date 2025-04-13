@@ -1,9 +1,6 @@
 <template>
   <div>
-    <h2>File Upload</h2>
-    <!-- Target element for Uppy Dashboard -->
     <div id="dashboard-container"></div>
-
     <!-- Display selected files -->
     <div v-if="files.length">
       <h3>Selected Files:</h3>
@@ -18,12 +15,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useNuxtApp } from '#app'
 
 const nuxtApp = useNuxtApp()
 const uppy = ref(null)
 const files = ref([])
+
+
+const props = defineProps({
+  docId: {
+    type: String,
+    default: null
+  },
+  type: {
+    type: String,
+    default: 'photos'
+  }
+});
 
 // Format file size to human readable format
 const formatSize = (bytes) => {
@@ -31,6 +40,10 @@ const formatSize = (bytes) => {
   else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
   else return (bytes / 1048576).toFixed(1) + ' MB'
 }
+
+
+const emit = defineEmits(['upload-success']);
+
 
 onMounted(() => {
   // Create and configure Uppy instance
@@ -50,11 +63,8 @@ onMounted(() => {
     },
     endpoint: '/api/upload',
     fields: {
-      project_id: 'test',
-      latitude: 50.87061309194399,
-      longitude: 4.343760484394616,
-      content: 'lorem ipsum',
-      type: 'content',
+      docId: props.docId,
+      finalise: (props.type === 'photos')
     },
   })
 
@@ -78,15 +88,17 @@ onMounted(() => {
 
   // Listen for successful upload
   uppy.value.on('upload-success', (file, response) => {
+    // add an emit to parent component
+    console.log('Upload successful', file.name, response);
+    emit('upload-success', file.name, response, props.type);
 
-    console.log('Upload successful', file.name, response)
   })
 })
 
 // Clean up Uppy instance when component is destroyed
-onBeforeUnmount(() => {
-  if (uppy.value) {
-    uppy.value.close()
-  }
-})
+// onBeforeUnmount(() => {
+//   if (uppy.value) {
+//     uppy.value.close()
+//   }
+// })
 </script>
